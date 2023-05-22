@@ -8,7 +8,7 @@ on:
       - main
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: jonjontwe/Nackademin-HelloWorld 
+  IMAGE_NAME: jonjontwe/Nackademin_HelloWorld 
 
 jobs:
   build-and-push-image:
