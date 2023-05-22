@@ -1,6 +1,6 @@
 # nackademin-helloworld
 
-> A simple hello world application for Nackademin's course DE22
+> A simple hello world application for Nackademin's course DE22, Edited by Jonathan Twete
 
 * [Requirements](#requirements)
 * [Test application](#test-application)
