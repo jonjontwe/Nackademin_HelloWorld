@@ -4,6 +4,9 @@ on:
   pull_request:
     branches:
       - main # Runs when there is a push to main
+    types:
+      - closed # Runs when a pull request closes
+
   push:
     branches:
       - 'dev*'  # Runs when there is a push to a branch that starts with 'dev'
