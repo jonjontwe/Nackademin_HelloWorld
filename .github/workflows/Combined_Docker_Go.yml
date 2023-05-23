@@ -3,73 +3,73 @@ name: Go_Docker_Combined
 on:
   pull_request:
     branches:
-      - main
+      - main # Runs when there is a push to main
   push:
     branches:
-      - 'dev*'
-      - main
+      - 'dev*'  # Runs when there is a push to a branch that starts with 'dev'
+      - main # Runs when there is a push to main
     tags:
-      - 'v*'
+      - 'v*' # Runs everytime a tag matches 'v*', 'v1.0.1' etc.
 
-jobs:
-  go-package-test-run:
-    runs-on: ubuntu-latest
+jobs: 
+  go-package-test-run: # A job to buld and test the go package
+    runs-on: ubuntu-latest # Virtual machine
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - name: Checkout repository  # Name for action
+        uses: actions/checkout@v3  # Step to check out the repository using a GitHub Actions
 
-      - name: Set up Go
-        uses: actions/setup-go@v2
+      - name: Set up Go # step to set up go 
+        uses: actions/setup-go@v2 # github action to set up go
         with:
-          go-version: '1.20'
+          go-version: '1.20' # Go version to use
 
       - name: Test
-        run: go test -v ./...
+        run: go test -v ./... # run 'go test' command
 
-      - name: Build application
+      - name: Build application # run 'go build' command
         run: |
           CGO_ENABLED=0
           GOOS=linux
           GOARCH=amd64
           go build -o endpoint -o build/endpoint main.go
 
-      - name: Build Docker image
+      - name: Build Docker image # Build docker image
         run: |
           docker build -t endpoint:1.0.0 .
 
-  create-and-publish-docker-image:
-    runs-on: ubuntu-latest
-    permissions:
+  create-and-publish-docker-image: # 2nd job
+    runs-on: ubuntu-latest # Virutal machine
+    permissions: # Grant permissions
       contents: read
       packages: write
     env:
       REGISTRY: ghcr.io
-      IMAGE_NAME: jonjontwe/Nackademin_HelloWorld
+      IMAGE_NAME: jonjontwe/Nackademin_HelloWorld # Specifies the name of the Docker image
 
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - name: Checkout repository # Step to check repo
+        uses: actions/checkout@v3 # Github actions action to check out repo
 
-      - name: Log in to the Container registry
-        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+      - name: Log in to the Container registry # Docker reg login
+        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9 #docker action to extract metadata
         with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          registry: ${{ env.REGISTRY }}  # environment variable for specify the reg
+          username: ${{ github.actor }}  # Github username
+          password: ${{ secrets.GITHUB_TOKEN }} # Logs in to the Docker container registry using the GitHub token
 
-      - name: Extract metadata (tags, labels) for Docker
-        id: meta
-        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
+      - name: Extract metadata (tags, labels) for Docker # extract metadata for docker
+        id: meta #identifier
+        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38 # docker action
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }} # image location in the reg
+          tags: | # tags based on reference and branch, tag on git SHA
             type=ref,event=branch
             type=sha
 
-      - name: Build and push Docker image
-        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
-        with:
+      - name: Build and push Docker image # step to build and push docker img to registry
+        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc # docker action
+        with: # build context and specify variables 
           context: .
           push: true
           tags: ${{ steps.meta.outputs.tags }}
